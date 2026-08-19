@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprende Matemáticas - Buscador Educativo</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h1 { font-size: 2.2rem; color: var(--accent); margin-bottom: 8px; }
+    p.subtitle { color: var(--text-muted); font-size: 1.1rem; }
+    
+    .search-box {
+      width: 100%;
+      padding: 16px 20px;
+      font-size: 1.1rem;
+      border-radius: 12px;
+      border: 2px solid #334155;
+      background-color: var(--card-bg);
+      color: var(--text);
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .search-box:focus {
+      border-color: var(--accent);
+    }
+
+    .results-container {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      background-color: var(--card-bg);
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+    .card h2 { color: var(--accent); margin-top: 0; }
+    .tag {
+      display: inline-block;
+      background: #0284c7;
+      color: white;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .formula {
+      background-color: #090d16;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 1.1rem;
+      color: #34d399;
+      margin: 10px 0;
+    }
+    .example {
+      background-color: #1a2332;
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      margin-top: 15px;
+      border-radius: 0 8px 8px 0;
+    }
+    .no-results {
+      text-align: center;
+      color: var(--text-muted);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📐 MathSearch</h1>
+    <p class="subtitle">Busca cualquier tema matemático y aprende en segundos</p>
+  </header>
+
+  <input type="text" id="searchInput" class="search-box" placeholder="Escribe un tema (ej. Pitágoras, Fracciones, Álgebra)..." oninput="filtrarTemas()">
+
+  <div id="results" class="results-container"></div>
+
+  <script>
+    // Tu base de datos de temas matemáticos (puedes agregar todos los que quieras)
+    const temasMatematicos = [
+      {
+        titulo: "Teorema de Pitágoras",
+        categoria: "Geometría",
+        keywords: ["pitagoras", "triangulo", "hipotenusa", "geometria", "catetos"],
+        explicacion: "Establece que en todo triángulo rectángulo, la longitud de la hipotenusa al cuadrado es igual a la suma de los cuadrados de los catetos.",
+        formula: "a² + b² = c²",
+        ejemplo: "Si un cateto mide 3 cm y otro 4 cm: c² = 3² + 4² = 9 + 16 = 25. La hipotenusa (c) es √25 = 5 cm."
+      },
+      {
+        titulo: "Ecuaciones de Primer Grado",
+        categoria: "Álgebra",
+        keywords: ["ecuaciones", "algebra", "incognita", "x", "primer grado"],
+        explicacion: "Son igualdades donde hay una variable desconocida (normalmente 'x') elevada a la potencia 1. El objetivo es despejar la x.",
+        formula: "ax + b = 0",
+        ejemplo: "Para resolver 2x + 4 = 10: Restamos 4 en ambos lados (2x = 6) y dividimos entre 2 (x = 3)."
+      },
+      {
+        titulo: "Suma y Resta de Fracciones",
+        categoria: "Aritmética",
+        keywords: ["fracciones", "suma", "resta", "denominador", "numerador", "aritmetica"],
+        explicacion: "Para sumar o restar fracciones con el mismo denominador, solo se suman o restan los numeradores. Si tienen distinto denominador, se busca un común denominador.",
+        formula: "(a/c) + (b/c) = (a + b) / c",
+        ejemplo: "1/4 + 2/4 = (1 + 2) / 4 = 3/4."
+      },
+      {
+        titulo: "Área de un Círculo",
+        categoria: "Geometría",
+        keywords: ["circulo", "area", "pi", "radio", "geometria"],
+        explicacion: "El área de un círculo mide el espacio dentro de su circunferencia y depende únicamente de la medida de su radio.",
+        formula: "Área = π × r²",
+        ejemplo: "Si el radio mide 3 cm: Área = 3.1416 × 3² = 3.1416 × 9 = 28.27 cm²."
+      }
+    ];
+
+    function renderizarCards(lista) {
+      const contenedor = document.getElementById('results');
+      contenedor.innerHTML = '';
+
+      if (lista.length === 0) {
+        contenedor.innerHTML = '<p class="no-results">No se encontraron temas que coincidan con tu búsqueda.</p>';
+        return;
+      }
+
+      lista.forEach(tema => {
+        contenedor.innerHTML += `
+          <div class="card">
+            <span class="tag">${tema.categoria}</span>
+            <h2>${tema.titulo}</h2>
+            <p>${tema.explicacion}</p>
+            <div class="formula"><strong>Fórmula:</strong> ${tema.formula}</div>
+            <div class="example">
+              <strong>Ejemplo práctico:</strong>
+              <p style="margin: 5px 0 0 0;">${tema.ejemplo}</p>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function filtrarTemas() {
+      const texto = document.getElementById('searchInput').value.toLowerCase().trim();
+      
+      const filtrados = temasMatematicos.filter(tema => {
+        const enTitulo = tema.titulo.toLowerCase().includes(texto);
+        const enCategoria = tema.categoria.toLowerCase().includes(texto);
+        const enKeywords = tema.keywords.some(kw => kw.toLowerCase().includes(texto));
+        return enTitulo || enCategoria || enKeywords;
+      });
+
+      renderizarCards(filtrados);
+    }
+
+    // Cargar todos los temas al iniciar
+    renderizarCards(temasMatematicos);
+  </script>
+</body>
+</html>
