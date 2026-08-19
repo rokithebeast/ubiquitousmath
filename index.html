@@ -6,176 +6,345 @@
   <title>Aprende Matemáticas - Buscador Educativo</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --accent: #38bdf8;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #0b1220;
+      --card-bg: #0f1724;
+      --panel: #111827;
+      --accent: #60a5fa;
+      --accent-2: #7c3aed;
+      --text: #e6eef8;
+      --muted: #94a3b8;
+      --success: #34d399;
+      --danger: #fb7185;
     }
+    * { box-sizing: border-box; }
     body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background-color: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, var(--bg) 0%, #071024 100%);
       color: var(--text);
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
+      margin: 0;
+      padding: 28px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
     }
     header {
-      text-align: center;
-      margin-bottom: 30px;
+      text-align: left;
+      margin-bottom: 22px;
     }
-    h1 { font-size: 2.2rem; color: var(--accent); margin-bottom: 8px; }
-    p.subtitle { color: var(--text-muted); font-size: 1.1rem; }
-    
+    h1 { font-size: 1.9rem; margin: 0 0 6px 0; color: var(--accent); }
+    p.subtitle { color: var(--muted); margin: 0 0 12px 0; }
+
+    .search-area {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
     .search-box {
-      width: 100%;
-      padding: 16px 20px;
-      font-size: 1.1rem;
+      flex: 1;
+      padding: 14px 16px;
+      font-size: 1rem;
       border-radius: 12px;
-      border: 2px solid #334155;
-      background-color: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.04);
+      background-color: rgba(255,255,255,0.02);
       color: var(--text);
       outline: none;
-      box-sizing: border-box;
-      transition: border-color 0.2s;
+      transition: box-shadow 0.15s, border-color 0.15s;
+      -webkit-appearance: none;
     }
-    .search-box:focus {
-      border-color: var(--accent);
+    .search-box:focus { box-shadow: 0 6px 24px rgba(96,165,250,0.08); border-color: rgba(96,165,250,0.28); }
+    .btn {
+      padding: 10px 14px;
+      background: linear-gradient(90deg,var(--accent),var(--accent-2));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 6px 20px rgba(124,58,237,0.12);
     }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .results-container {
-      margin-top: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
     }
     .card {
-      background-color: var(--card-bg);
-      padding: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.04);
+      padding: 18px;
       border-radius: 12px;
-      border: 1px solid #334155;
     }
-    .card h2 { color: var(--accent); margin-top: 0; }
-    .tag {
-      display: inline-block;
-      background: #0284c7;
-      color: white;
-      font-size: 0.8rem;
-      padding: 4px 10px;
-      border-radius: 20px;
-      margin-bottom: 12px;
-    }
-    .formula {
-      background-color: #090d16;
-      padding: 12px;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 1.1rem;
-      color: #34d399;
-      margin: 10px 0;
-    }
-    .example {
-      background-color: #1a2332;
-      border-left: 4px solid var(--accent);
-      padding: 12px 16px;
-      margin-top: 15px;
-      border-radius: 0 8px 8px 0;
-    }
-    .no-results {
-      text-align: center;
-      color: var(--text-muted);
-      margin-top: 40px;
+    .card h2 { color: var(--accent); margin: 0 0 8px 0; font-size: 1.15rem; }
+    .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 10px; }
+    .extract { color: var(--text); line-height: 1.5; }
+    .formula-section { margin-top: 12px; }
+    .formula { background: rgba(0,0,0,0.35); padding: 12px; border-radius: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; color: var(--success); white-space: pre-wrap; }
+    .no-results { text-align: center; color: var(--muted); padding: 26px 12px; }
+    .link-wiki { display: inline-block; margin-top: 12px; text-decoration: none; color: white; background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); }
+
+    .local-list { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; margin-top: 12px; }
+    .tag { display:inline-block; background: rgba(96,165,250,0.12); color: var(--accent); padding: 6px 10px; border-radius: 999px; font-weight:600; font-size: 0.8rem; }
+
+    .spinner { width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.06); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; display:inline-block; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    footer { margin-top: 22px; color: var(--muted); font-size: 0.9rem; text-align: center; }
+
+    @media (max-width:600px) {
+      body { padding: 16px; }
+      .search-area { flex-direction: column; align-items: stretch; }
+      .btn { width: 100%; }
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <h1>📐 MathSearch</h1>
+      <p class="subtitle">Busca cualquier tema matemático en Wikipedia (ES) y obtén una explicación rápida, fórmulas y el enlace al artículo.</p>
+    </header>
 
-  <header>
-    <h1>📐 MathSearch</h1>
-    <p class="subtitle">Busca cualquier tema matemático y aprende en segundos</p>
-  </header>
+    <div class="search-area">
+      <input id="searchInput" class="search-box" placeholder="Ej.: Pitágoras, Fracción, Integrales..." aria-label="Buscar término en Wikipedia" />
+      <button id="searchBtn" class="btn">Buscar</button>
+    </div>
 
-  <input type="text" id="searchInput" class="search-box" placeholder="Escribe un tema (ej. Pitágoras, Fracciones, Álgebra)..." oninput="filtrarTemas()">
+    <div id="results" class="results-container">
+      <!-- Resultados o temas locales -->
+    </div>
 
-  <div id="results" class="results-container"></div>
+    <footer>Datos obtenidos en tiempo real desde la API pública de Wikipedia en español — sin claves privadas.</footer>
+  </div>
 
   <script>
-    // Tu base de datos de temas matemáticos (puedes agregar todos los que quieras)
+    // Pequeña base local como respaldo y para mostrar contenido inicial
     const temasMatematicos = [
-      {
-        titulo: "Teorema de Pitágoras",
-        categoria: "Geometría",
-        keywords: ["pitagoras", "triangulo", "hipotenusa", "geometria", "catetos"],
-        explicacion: "Establece que en todo triángulo rectángulo, la longitud de la hipotenusa al cuadrado es igual a la suma de los cuadrados de los catetos.",
-        formula: "a² + b² = c²",
-        ejemplo: "Si un cateto mide 3 cm y otro 4 cm: c² = 3² + 4² = 9 + 16 = 25. La hipotenusa (c) es √25 = 5 cm."
-      },
-      {
-        titulo: "Ecuaciones de Primer Grado",
-        categoria: "Álgebra",
-        keywords: ["ecuaciones", "algebra", "incognita", "x", "primer grado"],
-        explicacion: "Son igualdades donde hay una variable desconocida (normalmente 'x') elevada a la potencia 1. El objetivo es despejar la x.",
-        formula: "ax + b = 0",
-        ejemplo: "Para resolver 2x + 4 = 10: Restamos 4 en ambos lados (2x = 6) y dividimos entre 2 (x = 3)."
-      },
-      {
-        titulo: "Suma y Resta de Fracciones",
-        categoria: "Aritmética",
-        keywords: ["fracciones", "suma", "resta", "denominador", "numerador", "aritmetica"],
-        explicacion: "Para sumar o restar fracciones con el mismo denominador, solo se suman o restan los numeradores. Si tienen distinto denominador, se busca un común denominador.",
-        formula: "(a/c) + (b/c) = (a + b) / c",
-        ejemplo: "1/4 + 2/4 = (1 + 2) / 4 = 3/4."
-      },
-      {
-        titulo: "Área de un Círculo",
-        categoria: "Geometría",
-        keywords: ["circulo", "area", "pi", "radio", "geometria"],
-        explicacion: "El área de un círculo mide el espacio dentro de su circunferencia y depende únicamente de la medida de su radio.",
-        formula: "Área = π × r²",
-        ejemplo: "Si el radio mide 3 cm: Área = 3.1416 × 3² = 3.1416 × 9 = 28.27 cm²."
-      }
+      { titulo: "Teorema de Pitágoras", categoria: "Geometría", explicacion: "En un triángulo rectángulo la hipotenusa al cuadrado es igual a la suma de los cuadrados de los catetos.", formula: "a² + b² = c²" },
+      { titulo: "Ecuaciones de Primer Grado", categoria: "Álgebra", explicacion: "Igualdades con una incógnita de primer grado. Se despeja la variable.", formula: "ax + b = 0" },
+      { titulo: "Área de un Círculo", categoria: "Geometría", explicacion: "Área = π × r².", formula: "A = πr²" }
     ];
 
-    function renderizarCards(lista) {
-      const contenedor = document.getElementById('results');
-      contenedor.innerHTML = '';
+    const resultsEl = document.getElementById('results');
+    const inputEl = document.getElementById('searchInput');
+    const btnEl = document.getElementById('searchBtn');
 
-      if (lista.length === 0) {
-        contenedor.innerHTML = '<p class="no-results">No se encontraron temas que coincidan con tu búsqueda.</p>';
+    // Renderiza temas locales iniciales
+    function renderLocal() {
+      resultsEl.innerHTML = '';
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = '<h2>Temas locales de ejemplo</h2><div class="local-list">' + temasMatematicos.map(t=>`<div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;"> <div class="tag">${t.categoria}</div><h3 style="margin:8px 0 6px 0;color:var(--accent);font-size:1rem;">${t.titulo}</h3><div style="color:var(--muted);font-size:0.95rem;">${t.explicacion}</div><div style="margin-top:8px;font-family:ui-monospace,monospace;color:var(--success);">${t.formula}</div></div>`).join('') + '</div>';
+      resultsEl.appendChild(card);
+    }
+
+    // Manejo principal de búsqueda (Wikipedia)
+    async function buscarWikipedia(termino) {
+      termino = termino.trim();
+      if (!termino) {
+        renderLocal();
         return;
       }
 
-      lista.forEach(tema => {
-        contenedor.innerHTML += `
-          <div class="card">
-            <span class="tag">${tema.categoria}</span>
-            <h2>${tema.titulo}</h2>
-            <p>${tema.explicacion}</p>
-            <div class="formula"><strong>Fórmula:</strong> ${tema.formula}</div>
-            <div class="example">
-              <strong>Ejemplo práctico:</strong>
-              <p style="margin: 5px 0 0 0;">${tema.ejemplo}</p>
-            </div>
-          </div>
-        `;
-      });
+      resultsEl.innerHTML = '<div class="card"><div style="display:flex;gap:10px;align-items:center;"><span class="spinner" aria-hidden="true"></span><div style="color:var(--muted);margin-left:6px;">Buscando "' + escapeHtml(termino) + '" en Wikipedia...</div></div></div>';
+
+      const endpoint = 'https://es.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=extracts|info&inprop=url&exintro=1&explaintext=0&redirects=1&titles=' + encodeURIComponent(termino);
+
+      try {
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error('Error en la petición');
+        const data = await res.json();
+
+        if (!data.query || !data.query.pages) throw new Error('Respuesta inesperada');
+
+        const pages = Object.values(data.query.pages);
+        if (pages.length === 0) throw new Error('No pages');
+
+        const page = pages[0];
+        if (page.missing || !page.extract) {
+          // No encontrado
+          resultsEl.innerHTML = '<div class="card no-results"><strong>No se encontró el concepto matemático</strong><div style="margin-top:8px;color:var(--muted);">Prueba con otra búsqueda o revisa la ortografía.</div></div>';
+          return;
+        }
+
+        // Obtener título, URL y extracto (HTML)
+        const title = page.title || termino;
+        const fullurl = page.fullurl || ('https://es.wikipedia.org/wiki/' + encodeURIComponent(title.replace(/ /g,'_')));
+        const extractHtml = page.extract || '';
+
+        // Extraer el primer párrafo del extracto
+        const firstParagraph = extractFirstParagraph(extractHtml);
+
+        // Buscar fórmulas/equaciones en el extracto
+        const formulas = extractFormulas(extractHtml);
+
+        // Renderizar resultado
+        resultsEl.innerHTML = '';
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = title + ' — artículo en Wikipedia (es)';
+
+        const h2 = document.createElement('h2');
+        h2.textContent = title;
+
+        const p = document.createElement('div');
+        p.className = 'extract';
+        p.innerHTML = sanitizeHtml(firstParagraph);
+
+        card.appendChild(meta);
+        card.appendChild(h2);
+        card.appendChild(p);
+
+        if (formulas.length > 0) {
+          const fsec = document.createElement('div');
+          fsec.className = 'formula-section';
+          const ftitle = document.createElement('div');
+          ftitle.style.color = 'var(--muted)';
+          ftitle.style.marginTop = '8px';
+          ftitle.textContent = 'Fórmulas o expresiones detectadas en el artículo:';
+          fsec.appendChild(ftitle);
+
+          formulas.forEach(f => {
+            const fe = document.createElement('pre');
+            fe.className = 'formula';
+            fe.textContent = f;
+            fsec.appendChild(fe);
+          });
+
+          card.appendChild(fsec);
+        }
+
+        const link = document.createElement('a');
+        link.className = 'link-wiki';
+        link.href = fullurl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Leer artículo completo en Wikipedia';
+
+        card.appendChild(link);
+
+        resultsEl.appendChild(card);
+
+      } catch (err) {
+        console.error(err);
+        resultsEl.innerHTML = '<div class="card no-results"><strong>No se encontró el concepto matemático</strong><div style="margin-top:8px;color:var(--muted);">Ocurrió un error al consultar Wikipedia.</div></div>';
+      }
     }
 
-    function filtrarTemas() {
-      const texto = document.getElementById('searchInput').value.toLowerCase().trim();
-      
-      const filtrados = temasMatematicos.filter(tema => {
-        const enTitulo = tema.titulo.toLowerCase().includes(texto);
-        const enCategoria = tema.categoria.toLowerCase().includes(texto);
-        const enKeywords = tema.keywords.some(kw => kw.toLowerCase().includes(texto));
-        return enTitulo || enCategoria || enKeywords;
-      });
-
-      renderizarCards(filtrados);
+    // Extrae el primer párrafo de un fragmento HTML (extract)
+    function extractFirstParagraph(html) {
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const p = doc.querySelector('p');
+        if (p && p.textContent.trim()) return p.innerHTML;
+        // si no hay <p>, intentar con el texto plano
+        const text = doc.body.textContent || html;
+        const idx = text.indexOf('\n\n');
+        return (idx > -1) ? escapeHtml(text.slice(0, idx)) : escapeHtml(text);
+      } catch (e) {
+        return escapeHtml(html);
+      }
     }
 
-    // Cargar todos los temas al iniciar
-    renderizarCards(temasMatematicos);
+    // Busca fórmulas LaTeX o etiquetas <math> o imágenes con clase mwe-math y expresiones inline
+    function extractFormulas(html) {
+      const found = new Set();
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // Math elements (if present)
+        doc.querySelectorAll('math').forEach(n => {
+          const t = n.textContent.trim(); if (t) found.add(t);
+        });
+        // spans or elements with math classes
+        doc.querySelectorAll('[class*="math"]').forEach(n => {
+          const t = n.textContent.trim(); if (t && t.length < 400) found.add(t);
+        });
+        // images that may contain alt text with LaTeX
+        doc.querySelectorAll('img').forEach(img => {
+          const cls = img.className || '';
+          if (cls.includes('mwe-math') || cls.includes('tex')) {
+            const alt = (img.alt || img.getAttribute('data-mw') || '').trim();
+            if (alt) found.add(alt);
+          }
+        });
+
+        // Buscar delimitadores LaTeX en el HTML/texto
+        const raw = doc.body.innerHTML || html;
+        const latexRegexes = [ /\\\((.+?)\\\)/gs, /\\\[(.+?)\\\]/gs, /\$\$(.+?)\$\$/gs, /\$(.+?)\$/gs ];
+        latexRegexes.forEach(rx => {
+          let m;
+          while ((m = rx.exec(raw)) !== null) {
+            const txt = m[1].trim(); if (txt) found.add(txt);
+          }
+        });
+      } catch (e) {
+        // ignore parsing errors
+      }
+
+      // Filtrar candidatos demasiado largos
+      return Array.from(found).map(s => s.replace(/\r?\n/g,' ').trim()).filter(s => s && s.length < 1000);
+    }
+
+    // Sanitizar HTML mínimo para evitar inyección: permitimos etiquetas básicas <b><i><strong><em><sub><sup><a>
+    function sanitizeHtml(fragment) {
+      // Simple approach: parse and rebuild allowed tags
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(fragment, 'text/html');
+      const allowed = ['B','I','STRONG','EM','SUB','SUP','A','SPAN'];
+      function clean(node) {
+        const nodeName = node.nodeName;
+        if (node.nodeType === Node.TEXT_NODE) return document.createTextNode(node.textContent);
+        if (!allowed.includes(nodeName)) {
+          // unwrap children
+          const frag = document.createDocumentFragment();
+          node.childNodes.forEach(c => {
+            frag.appendChild(clean(c));
+          });
+          return frag;
+        }
+        // Allowed element: clone but keep href for A
+        const el = document.createElement(nodeName.toLowerCase());
+        if (nodeName === 'A') {
+          const href = node.getAttribute('href') || node.getAttribute('data-href') || '';
+          // Only allow http(s) links
+          if (/^https?:\/\//.test(href)) el.setAttribute('href', href);
+          el.setAttribute('target','_blank');
+          el.setAttribute('rel','noopener noreferrer');
+        }
+        // copy children
+        node.childNodes.forEach(c => el.appendChild(clean(c)));
+        return el;
+      }
+      const out = document.createDocumentFragment();
+      doc.body.childNodes.forEach(n => out.appendChild(clean(n)));
+      const wrapper = document.createElement('div');
+      wrapper.appendChild(out);
+      return wrapper.innerHTML;
+    }
+
+    // Escape básico
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>\"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]; });
+    }
+
+    // Eventos
+    btnEl.addEventListener('click', ()=> buscarWikipedia(inputEl.value));
+    inputEl.addEventListener('keydown', (e)=> { if (e.key === 'Enter') { buscarWikipedia(inputEl.value); } });
+
+    // Mostrar local al inicio
+    renderLocal();
   </script>
 </body>
 </html>
